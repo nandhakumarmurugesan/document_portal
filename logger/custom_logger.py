@@ -41,7 +41,7 @@ class CustomLogger:
         # Return a logger object with a name (basename strips full path for clarity)
         return logging.getLogger(os.path.basename(name))
 
-# Example usage when this script is run directly
+# Usage when this script is run directly
 if __name__ == "__main__":
     # Instantiate the custom logger
     logger = CustomLogger()
