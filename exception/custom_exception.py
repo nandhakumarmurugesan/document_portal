@@ -1,7 +1,7 @@
 import sys
 import traceback
 from logger.custom_logger import CustomLogger
-logger=CustomLogger().get_logger("exception")
+logger=CustomLogger().get_logger(__file__)
 
 class DocumentPortalException(Exception):
     """Custom exception class for Document Portal errors."""
