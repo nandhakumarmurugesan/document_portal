@@ -1,54 +1,53 @@
-# Import required modules
-import os                          # For file system path and directory operations
-import logging                     # Python's built-in logging module
-from datetime import datetime      # For timestamping log file names
+import os
+import logging
+from datetime import datetime
+import structlog
 
-# Define a custom logger class
 class CustomLogger:
     def __init__(self, log_dir="logs"):
-        """
-        Initializes the custom logger by creating a log directory and configuring the logging settings.
-        :param log_dir: Name of the directory to store log files. Defaults to "logs".
-        """
-
-        # Create the full path to the logs directory (e.g., /path/to/current_dir/logs)
+        #ensure log directory exists
         self.logs_dir = os.path.join(os.getcwd(), log_dir)
-
-        # Create the directory if it doesn't exist. `exist_ok=True` prevents errors if the directory exists.
         os.makedirs(self.logs_dir, exist_ok=True)
-
-        # Create a timestamped log file name (e.g., 08_17_2025_14_30_55.log)
-        log_file = f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
-
-        # Get the full path to the log file (e.g., /path/to/logs/08_17_2025_14_30_55.log)
-        log_file_path = os.path.join(self.logs_dir, log_file)
-
-        # Configure the logging system
-        logging.basicConfig(
-            filename=log_file_path,     # Set the log file path
-            format='[%(asctime)s]- %(levelname)s %(name)s: (line:%(lineno)d) - %(message)s',
-                                        # Define log message format:
-                                        # Timestamp - Level - Logger Name - Line Number - Message
-            level=logging.INFO,         # Set default log level to INFO
-        )
         
+        #timestamp of log file for persistance
+        log_file = f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
+        self.log_file_path = os.path.join(self.logs_dir, log_file)
+                
     def get_logger(self, name=__file__):
-        """
-        Returns a logger instance with the specified name.
-        :param name: Optional name for the logger (usually the file name).
-        :return: Configured logger object.
-        """
-        # Return a logger object with a name (basename strips full path for clarity)
-        return logging.getLogger(os.path.basename(name))
+        logger_name = os.path.basename(name)
+        
+        # Configure for logging for console + file (JSON)
+        file_handler = logging.FileHandler(self.log_file_path)
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(logging.Formatter("%(message)s")) #raw JSON lines
 
-# Usage when this script is run directly
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(logging.Formatter("%(message)s"))
+
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(message)s",
+            handlers=[console_handler,file_handler]
+        )
+
+        # Configure Structlog for JSON structured logging
+        structlog.configure(
+            processors=[
+                structlog.processors.TimeStamper(fmt="iso", utc=True, key="timestamp"),
+                structlog.processors.add_log_level,
+                structlog.processors.EventRenamer(to="event"),
+                structlog.processors.JSONRenderer()
+            ],
+            logger_factory=structlog.stdlib.LoggerFactory(),
+            cache_logger_on_first_use=True,
+        )
+
+        return structlog.get_logger(logger_name)
+    
+# # --- Usage checks ---
+
 if __name__ == "__main__":
-    # Instantiate the custom logger
-    logger = CustomLogger()
-    
-    # Get a logger instance with the name "__file__" (as a string here, not the __file__ variable)
-    logger = logger.get_logger("__file__")
-    
-    # Write an INFO-level log message
-    logger.info("Custom Log initialization complete.")
-# This code sets up a custom logging system that creates a log file in a specified directory
+    logger = CustomLogger().get_logger(__file__)
+    logger.info("User uploaded a file", user_id=123, filename="report.pdf")
+    logger.error("Failed to process PDF", error="File not found", user_id=123)
