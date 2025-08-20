@@ -3,7 +3,7 @@ faiss_db:
 
 embedding_model:
   provider: "google"
-  model: "models/text-embedding-004"
+  model_name: "models/text-embedding-004"
 
 retriever:
   top_k: 10
@@ -11,12 +11,12 @@ retriever:
 llm:
   groq:
     provider: "groq"
-    model: "models/deepseek-r1-distill-llama-70b"
+    model_name: "deepseek-r1-distill-llama-70b"
     temperature: 0
     max_output_tokens: 2048
 
   google:
     provider: "google"
-    model: "models/text-embedding-004"
+    model_name: "gemini-2.0-flash"
     temperature: 0
     max_output_tokens: 2048
