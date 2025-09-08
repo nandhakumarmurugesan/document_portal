@@ -13,7 +13,7 @@ class DocumentHandler:
     def __init__(self,data_dir=None,session_id=None):
         #session history for every instance
         try:
-            self.CustomLogger().get_logger(__name__)
+            self.log = CustomLogger().get_logger(__name__)
             #check data directory from env variable or use default path
             self.data_dir = data_dir or os.getenv(
                                     "DATA_STORAGE_PATH",
