@@ -30,8 +30,10 @@ main_archive/
 # Secrets & configs
 .env
 .env.*
+.venvdp
 .venvdp.*
 venvdp/
+
 
 # Logs
 logs/
