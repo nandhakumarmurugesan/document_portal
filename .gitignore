@@ -6,7 +6,7 @@ __pycache__/
 *.pyo
 env/
 venv/
-venvdp/
+.venvdp/
 *.egg-info/
 *.egg
 *.log
@@ -30,6 +30,7 @@ main_archive/
 # Secrets & configs
 .env
 .env.*
+.venvdp.*
 
 # Logs
 logs/
