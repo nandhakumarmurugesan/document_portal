@@ -28,7 +28,7 @@
       ],
       "secrets": [
         {
-          "name": "API_KEYS",
+          "name": "document-portal-secret",
           "valueFrom": "arn:aws:secretsmanager:ap-south-2:605411279315:secret:document-portal-secret-YVKjik"
         }
         
